@@ -22,13 +22,6 @@ function shapeMockupIndex(base, shape, shapeNum) {
     shapeMockupBase.set(index, base);
     return index;
 }
-function classHasColor(set) {
-    if (!set) return false;
-    if (set.COLOR != null) return true;
-    let parents = Array.isArray(set.PARENT) ? set.PARENT : set.PARENT != null ? [set.PARENT] : [];
-    return parents.some(parent => classHasColor(typeof parent === "string" ? Class[parent] : parent));
-}
-
 function turretIsInert(turret) {
     if (turret.guns.size > 0 || turret.controllers.length > 0) return false;
     for (const child of turret.turrets.values()) if (!turretIsInert(child)) return false;
@@ -240,12 +233,6 @@ class Entity extends EventEmitter {
 
         // Define all primary stats
         let set = ensureIsClass(defs[0]);
-        if (emitEvent && (this.isPlayer || this.isBot)) {
-            let own = defs.some(def => classHasColor(ensureIsClass(def)));
-            if (own && !this.ownColor) this.teamWorn = this.color.base;
-            else if (!own && this.ownColor && this.teamWorn != null) this.color.base = this.teamWorn;
-            this.ownColor = own;
-        }
         this.props.clear();
         this.store = {};
         for (let gun of this.guns.values()) gun.store = {};
